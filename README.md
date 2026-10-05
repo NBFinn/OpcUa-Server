@@ -51,7 +51,7 @@ Use the OPC UA address printed in the server console: the server determines its 
 
 Aspire prints its token login URL in the console. When started through the AppHost, the Aspire button in the web dashboard includes the current login token automatically.
 
-The bundled JSON files use local loopback endpoints and neutral demo device/module metadata. They contain no fixed LAN IP addresses or example user credentials. The OPC UA metadata uses port `5844`; the running server prints its actual network endpoint at startup. Node IDs and data types are preserved for client compatibility.
+The bundled JSON files use local loopback endpoints and neutral demo device/module metadata. They contain no fixed LAN IP addresses or example user credentials. The OPC UA metadata uses port `5844`; the running server prints its actual network endpoint at startup. The dataset contains only four generic test nodes; imported machine data and scenarios have been removed.
 
 ## Using the dashboard
 
@@ -96,7 +96,7 @@ To start only the server with its default .NET 10 target:
 dotnet run --project OpcUA_Server.csproj -- --profile TestServer
 ```
 
-Always pass `--profile TestServer` for standalone startup. The current entry point and server launch settings still default to `PLC1`, but the configuration contains only `TestServer`.
+Standalone startup and launch settings default to `TestServer`.
 
 Start the dashboard in a separate terminal if needed:
 
@@ -150,23 +150,16 @@ Other options are `--config <configuration-path>` and `--scenario <filename>`. T
 
 ## Scenario files
 
-The configured default `TestServer.normal-production.yaml` is currently **not included**. Existing scenario files belong to other profiles and must be adapted to TestServer nodes.
+The included `TestServer/Simulations/Scenarios/TestServer.normal-production.yaml` uses only the four demo nodes. It enables the demo, increments the counter, changes the temperature and message, then finishes after two seconds in Static mode.
 
-Create `TestServer/Simulations/Scenarios/TestServer.normal-production.yaml`, then rebuild. For example:
+| Node ID | Data type | Initial value |
+| --- | --- | --- |
+| `ns=3;s=Test.Enabled` | Boolean | `false` |
+| `ns=3;s=Test.Counter` | Int32 | `0` |
+| `ns=3;s=Test.Temperature` | Double | `20.0` |
+| `ns=3;s=Test.Message` | String | `Hello from TestServer` |
 
-```yaml
-scenario:
-  name: example
-  steps:
-    - afterMs: 0
-      set:
-        YourNumericNode: 10
-    - afterMs: 2000
-      increment:
-        YourNumericNode: 5
-```
-
-Replace `YourNumericNode` with the name of an existing writable numeric node. `afterMs` is elapsed time since scenario startup, not an additional delay. `set` assigns values and `increment` changes numeric values. Duplicate node names select the first match. The parser supports this simple format, not arbitrary YAML; full OPC UA NodeIds contain colons and should not be used as keys in this simplified format.
+All four nodes are writable. In a scenario, use the node names `Enabled`, `Counter`, `Temperature` and `Message`. `afterMs` is elapsed time since scenario startup; `set` assigns values and `increment` changes numeric values. The parser supports this simple format, not arbitrary YAML; full OPC UA NodeIds contain colons and should not be used as keys.
 
 Alternatively, enter an **absolute path on the server machine** in the dashboard's scenario field. When left empty, the dashboard mode switch searches for `Scenarios/TestServer.normal-production.yaml`, with a fallback to the source directory. It currently does not use a differently named `DefaultScenario` from the profile configuration for this mode switch.
 
@@ -184,7 +177,7 @@ Certificates are stored under `OpcUA_Server/SimulatorPki/TestServer` next to the
 | --- | --- |
 | Port already in use | Stop another instance or use different ports |
 | Server unavailable | Read simulator logs in Aspire; verify the profile name and HTTP REST address |
-| PLC1 profile not found | Add `--profile TestServer` to standalone startup |
+| Profile not found | Use the configured profile name `TestServer` |
 | Missing scenario file | Create the file, rebuild, or provide an absolute path |
 | Write fails | Check node type and write access; REST writes require Manual mode |
 | JSON error | Check the reported line; do not use trailing commas in `Dashboard/Data/testservers.json` |

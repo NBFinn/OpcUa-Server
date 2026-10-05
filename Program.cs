@@ -7,7 +7,7 @@ internal static class Program
         System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
 
         if (!args.Contains("--profile", StringComparer.OrdinalIgnoreCase))
-            args = [.. args, "--profile", "PLC1"];
+            args = [.. args, "--profile", "TestServer"];
         await Server.ServerProgram.Main(args);
     }
 }

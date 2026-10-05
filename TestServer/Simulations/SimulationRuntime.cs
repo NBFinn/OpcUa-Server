@@ -72,20 +72,7 @@ internal static class SimulationRuntime
             Simulators[selectedProfile] = new ProfileSimulator(selectedProfile, valueStore);
             return;
         }
-        foreach (DeviceSimulatorBase simulator in new DeviceSimulatorBase[]
-        {
-            new PLC1Simulator(valueStore), new PLC2Simulator(valueStore),
-            new FlyerSimulator(valueStore), new PythonSimulator(valueStore),
-            new UmreiferSimulator(valueStore)
-        })
-        {
-            if (selectedProfile is null || simulator.DeviceName.Equals(
-                    selectedProfile,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                Simulators[simulator.DeviceName] = simulator;
-            }
-        }
+        Simulators["TestServer"] = new ProfileSimulator("TestServer", valueStore);
     }
 
     public static async Task StartAsync(CancellationToken parentToken = default)
