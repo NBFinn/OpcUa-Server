@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using Server;
 
 namespace Automation.Simulator.TestServer.Simulations;
 
@@ -18,6 +19,7 @@ internal static class SimulationRuntime
     private static Task? restTask;
     private static string? selectedProfile;
     private static int restPort = 5080;
+    public static int RestPort => restPort;
 
     public static void ConfigureProfile(
         string profile,
@@ -89,8 +91,9 @@ internal static class SimulationRuntime
                 cancellation.Token);
         }
 
+        HttpListener listener = StartRestListener();
         cliTask = Task.Run(() => RunCliAsync(cancellation.Token), cancellation.Token);
-        restTask = RunRestAsync(cancellation.Token);
+        restTask = RunRestAsync(listener, cancellation.Token);
 
         Console.WriteLine(
             $"Simulation ready. CLI: sim help | REST: http://localhost:{restPort}/api/opcuaclients");
@@ -198,25 +201,43 @@ internal static class SimulationRuntime
         return success ? message : $"Error: {message}";
     }
 
-    private static async Task RunRestAsync(CancellationToken token)
+    private static HttpListener StartRestListener()
     {
-        using var listener = new HttpListener();
-        listener.Prefixes.Add($"http://localhost:{restPort}/");
-        try
+        restPort = PortSelection.FindAvailable(restPort, "REST API");
+        for (int attempt = 0; ; attempt++)
         {
-            listener.Start();
+            var listener = new HttpListener();
+            listener.Prefixes.Add($"http://localhost:{restPort}/");
+            try
+            {
+                listener.Start();
+                return listener;
+            }
+            catch (HttpListenerException exception) when (attempt < 31 &&
+                (exception.NativeErrorCode is 32 or 183 || !PortSelection.IsAvailable(restPort)))
+            {
+                listener.Close();
+                Console.WriteLine($"REST API: port {restPort} became occupied during startup; retrying.");
+                restPort = PortSelection.FindAvailable(PortSelection.Next(restPort), "REST API");
+            }
+            catch
+            {
+                listener.Close();
+                throw;
+            }
         }
-        catch (Exception exception)
-        {
-            Console.Error.WriteLine($"Could not start simulation REST API: {exception.Message}");
-            return;
-        }
+    }
 
-        using CancellationTokenRegistration registration = token.Register(listener.Stop);
-        while (!token.IsCancellationRequested)
+    private static async Task RunRestAsync(HttpListener listener, CancellationToken token)
+    {
+        using (listener)
         {
-            try { _ = HandleRequestAsync(await listener.GetContextAsync(), token); }
-            catch (Exception) when (token.IsCancellationRequested) { return; }
+            using CancellationTokenRegistration registration = token.Register(listener.Stop);
+            while (!token.IsCancellationRequested)
+            {
+                try { _ = HandleRequestAsync(await listener.GetContextAsync(), token); }
+                catch (Exception) when (token.IsCancellationRequested) { return; }
+            }
         }
     }
 

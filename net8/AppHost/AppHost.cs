@@ -12,11 +12,13 @@ if (!excludedAssemblies.Contains(excludedAssembly, StringComparer.OrdinalIgnoreC
 Environment.SetEnvironmentVariable(exclusionVariable, string.Join(';', excludedAssemblies));
 
 var builder = DistributedApplication.CreateBuilder(args);
+string endpointFile = Path.Combine(Path.GetTempPath(), "OpcUaServer", $"{Guid.NewGuid():N}.json");
 
 var simulations = new[] { "TestServer" }
     .Select(profile => builder.AddProject<Projects.OpcUA_Server>(
         $"Server{profile}", launchProfileName: null)
-        .WithArgs("--profile", profile))
+        .WithArgs("--profile", profile)
+        .WithEnvironment("OPCUA_ENDPOINT_FILE", endpointFile))
     .ToArray();
 
 string aspireUrl = (builder.Configuration["ASPNETCORE_URLS"] ?? "http://localhost:16006")
@@ -24,6 +26,7 @@ string aspireUrl = (builder.Configuration["ASPNETCORE_URLS"] ?? "http://localhos
 var dashboard = builder.AddProject<Projects.OpcUA_Server_Dashboard>(
     "ServerDashboard", launchProfileName: null)
     .WithHttpEndpoint(port: 6180, targetPort: 6180, name: "http", isProxied: false)
+    .WithEnvironment("OPCUA_ENDPOINT_FILE", endpointFile)
     .WithEnvironment(context =>
     {
         string? browserToken = builder.Configuration["AppHost:BrowserToken"];

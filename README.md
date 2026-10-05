@@ -24,7 +24,7 @@ cd OpcUa-Server\net8
 dotnet run --project AppHost\OpcUaHost.csproj --launch-profile http
 ```
 
-Aspire uses `http://localhost:16006`, node management uses `http://localhost:6180`, and the REST API uses `http://localhost:6084`. Follow the Aspire token login URL printed in the host console. The Aspire button in the node management page includes that token automatically. Start only one variant at a time because all variants use the same ports.
+Aspire uses `http://localhost:16006`, node management uses `http://localhost:6180`, and the REST API uses `http://localhost:6084`. Follow the Aspire token login URL printed in the host console. The Aspire button in the node management page includes that token automatically. The server automatically skips occupied OPC UA and REST ports; its final addresses appear in the log and the management page discovers the REST port when started through Aspire. The Aspire dashboard, telemetry/resource and management ports remain separately configured, so run only one complete host at a time unless you change those ports.
 
 ## Test data
 
@@ -36,6 +36,6 @@ Aspire 9.5.2 is an out-of-support compatibility release used by the .NET 8 and .
 
 All three complete solutions build, and full startup checks passed for .NET 8, .NET 9 and .NET 10. Validation details are recorded in the individual folder README files. Install the matching .NET and ASP.NET Core runtimes, plus the SDK required by the selected host. Visual Studio itself must support that SDK; see [Microsoft's support matrix](https://learn.microsoft.com/en-us/dotnet/core/porting/versioning-sdk-msbuild-vs). Aspire 9.5.2 framework metadata is available on [NuGet](https://www.nuget.org/packages/Aspire.Hosting.AppHost/9.5.2).
 
-See each folder's README for node writing, modes, configuration, standalone startup, certificates and troubleshooting.
+See each folder's README for automatic port selection and a two-server test, node writing, modes, configuration, standalone startup, certificates and troubleshooting.
 
 The adapter is maintained separately in [NBFinn/OpcUa-Adapter](https://github.com/NBFinn/OpcUa-Adapter) and is not used by these server projects.

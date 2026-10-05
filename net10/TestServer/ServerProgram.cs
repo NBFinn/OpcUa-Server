@@ -72,6 +72,7 @@ public static partial class ServerProgram
 
             SimulatorProfile profile = activeProfile ?? throw new InvalidOperationException(
                 "No simulator profile was selected.");
+            profile = profile with { OpcPort = PortSelection.FindAvailable(profile.OpcPort, "OPC UA") };
             string pkiRoot = DeleteServerCertificates(profile.Name);
 
             string serverIp = GetPrimaryIpv4Address();
@@ -96,20 +97,53 @@ public static partial class ServerProgram
 
             await configuration.ValidateAsync(ApplicationType.Server);
 
-            var newServer = new TestStandardServer();
+            // A free-port probe is advisory. Retry if another process wins the actual bind.
+            for (int attempt = 0; ; attempt++)
+            {
+                configuration.ServerConfiguration.BaseAddresses.Clear();
+                configuration.ServerConfiguration.BaseAddresses.Add(
+                    $"opc.tcp://{serverIp}:{profile.OpcPort}/{profile.Name}Simulator");
+                var newServer = new TestStandardServer();
 
-            try
-            {
-                await newApplication.StartAsync(newServer);
-                application = newApplication;
-                server = newServer;
-                Console.WriteLine($"OPC-UA: opc.tcp://{serverIp}:{profile.OpcPort}/{profile.Name}Simulator");
-                await SimulationRuntime.StartAsync();
-            }
-            catch
-            {
-                newServer.Dispose();
-                throw;
+                try
+                {
+                    await newApplication.StartAsync(newServer);
+                    application = newApplication;
+                    server = newServer;
+                    activeProfile = profile;
+                    Console.WriteLine($"OPC-UA: opc.tcp://{serverIp}:{profile.OpcPort}/{profile.Name}Simulator");
+                    await SimulationRuntime.StartAsync();
+                    string? endpointFile = Environment.GetEnvironmentVariable("OPCUA_ENDPOINT_FILE");
+                    if (!string.IsNullOrWhiteSpace(endpointFile))
+                    {
+                        string fullPath = Path.GetFullPath(endpointFile);
+                        Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+                        string temporaryPath = fullPath + ".tmp";
+                        await File.WriteAllTextAsync(temporaryPath, JsonSerializer.Serialize(new
+                        {
+                            Name = profile.Name,
+                            ApiAddress = $"http://localhost:{SimulationRuntime.RestPort}",
+                            OpcAddress = $"opc.tcp://{serverIp}:{profile.OpcPort}/{profile.Name}Simulator"
+                        }));
+                        File.Move(temporaryPath, fullPath, overwrite: true);
+                    }
+                    break;
+                }
+                catch (Exception exception) when (server is null && attempt < 31 &&
+                    (PortSelection.IsAddressInUse(exception) || !PortSelection.IsAvailable(profile.OpcPort)))
+                {
+                    newServer.Dispose();
+                    Console.WriteLine($"OPC UA: port {profile.OpcPort} became occupied during startup; retrying.");
+                    profile = profile with
+                    {
+                        OpcPort = PortSelection.FindAvailable(PortSelection.Next(profile.OpcPort), "OPC UA")
+                    };
+                }
+                catch
+                {
+                    if (server is null) newServer.Dispose();
+                    throw;
+                }
             }
         }
         finally
@@ -124,7 +158,8 @@ public static partial class ServerProgram
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "OpcUaServer",
             "pki",
-            $"net{Environment.Version.Major}"));
+            $"net{Environment.Version.Major}",
+            $"process{Environment.ProcessId}"));
         string pkiRoot = Path.GetFullPath(Path.Combine(pkiBase, profileName));
 
         if (!string.Equals(Path.GetDirectoryName(pkiRoot),

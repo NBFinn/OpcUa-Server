@@ -8,6 +8,7 @@ public class TestServerConfigurationStore
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
     private readonly string filePath;
     private readonly SemaphoreSlim fileLock = new(1, 1);
+    private readonly string? endpointFile = Environment.GetEnvironmentVariable("OPCUA_ENDPOINT_FILE");
 
     public TestServerConfigurationStore(IWebHostEnvironment environment)
     {
@@ -33,7 +34,7 @@ public class TestServerConfigurationStore
         await fileLock.WaitAsync();
         try
         {
-            List<TestServerConfiguration> servers = await LoadAsync();
+            List<TestServerConfiguration> servers = await LoadAsync(applyRunningEndpoint: false);
             int index = servers.FindIndex(item =>
                 item.Name.Equals(server.Name, StringComparison.OrdinalIgnoreCase));
             if (index >= 0) servers[index] = server;
@@ -48,7 +49,7 @@ public class TestServerConfigurationStore
         await fileLock.WaitAsync();
         try
         {
-            List<TestServerConfiguration> servers = await LoadAsync();
+            List<TestServerConfiguration> servers = await LoadAsync(applyRunningEndpoint: false);
             servers.RemoveAll(server =>
                 server.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             await SaveAllAsync(servers);
@@ -56,12 +57,23 @@ public class TestServerConfigurationStore
         finally { fileLock.Release(); }
     }
 
-    private async Task<List<TestServerConfiguration>> LoadAsync()
+    private async Task<List<TestServerConfiguration>> LoadAsync(bool applyRunningEndpoint = true)
     {
         if (!File.Exists(filePath)) return [];
         await using FileStream stream = File.OpenRead(filePath);
-        return await JsonSerializer.DeserializeAsync<List<TestServerConfiguration>>(
+        List<TestServerConfiguration> servers = await JsonSerializer.DeserializeAsync<List<TestServerConfiguration>>(
             stream, JsonOptions) ?? [];
+        // The host supplies a unique file for this launch. Do not rewrite saved entries.
+        if (applyRunningEndpoint && !string.IsNullOrWhiteSpace(endpointFile) && File.Exists(endpointFile))
+        {
+            TestServerConfiguration? running = JsonSerializer.Deserialize<TestServerConfiguration>(
+                await File.ReadAllTextAsync(endpointFile));
+            TestServerConfiguration? saved = servers.FirstOrDefault(item =>
+                item.Name.Equals(running?.Name, StringComparison.OrdinalIgnoreCase) &&
+                Uri.TryCreate(item.ApiAddress, UriKind.Absolute, out Uri? address) && address.IsLoopback);
+            if (saved is not null && running is not null) saved.ApiAddress = running.ApiAddress;
+        }
+        return servers;
     }
 
     private async Task SaveAllAsync(List<TestServerConfiguration> servers)
