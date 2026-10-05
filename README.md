@@ -51,6 +51,8 @@ Use the OPC UA address printed in the server console: the server determines its 
 
 Aspire prints its token login URL in the console. When started through the AppHost, the Aspire button in the web dashboard includes the current login token automatically.
 
+The bundled JSON files use local loopback endpoints and neutral demo device/module metadata. They contain no fixed LAN IP addresses or example user credentials. The OPC UA metadata uses port `5844`; the running server prints its actual network endpoint at startup. Node IDs and data types are preserved for client compatibility.
+
 ## Using the dashboard
 
 The dashboard interface, validation messages and application messages use English. The first configured server is selected automatically.
