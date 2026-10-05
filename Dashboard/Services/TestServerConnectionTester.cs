@@ -33,7 +33,7 @@ public sealed class TestServerConnectionTester
             {
                 return (
                     false,
-                    $"Die API antwortet mit HTTP {(int)response.StatusCode}.");
+                    $"The API returned HTTP {(int)response.StatusCode}.");
             }
         }
         catch (Exception exception) when (
@@ -41,10 +41,10 @@ public sealed class TestServerConnectionTester
         {
             return (
                 false,
-                $"Die API unter {server.ApiAddress} ist nicht erreichbar.");
+                $"The API at {server.ApiAddress} is unreachable.");
         }
 
-        return (true, "Die API ist erreichbar.");
+        return (true, "The API is reachable.");
     }
 
     public async Task<string> GetStatusAsync(
@@ -61,17 +61,17 @@ public sealed class TestServerConnectionTester
 
             if (!response.IsSuccessStatusCode)
             {
-                return "Nicht verfügbar";
+                return "Unavailable";
             }
 
             var results = await response.Content.ReadFromJsonAsync<List<ClientStatus>>(cancellationToken: timeout.Token);
             var result = results?.FirstOrDefault(item => string.Equals(item.Device, server.Name, StringComparison.OrdinalIgnoreCase));
-            return result is null ? "Nicht verfügbar" : "Connected";
+            return result is null ? "Unavailable" : "Connected";
         }
         catch (Exception exception) when (
             exception is HttpRequestException or OperationCanceledException)
         {
-            return "API nicht erreichbar";
+            return "API unreachable";
         }
     }
 

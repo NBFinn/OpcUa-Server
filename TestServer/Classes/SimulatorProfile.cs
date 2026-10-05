@@ -21,7 +21,7 @@ public static partial class ServerProgram
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException(
-                    "--profile muss den Namen eines Servers aus der Konfiguration enthalten.");
+                    "--profile must specify a server name from the configuration.");
             }
 
             string json = File.ReadAllText(configurationPath);
@@ -30,7 +30,7 @@ public static partial class ServerProgram
             SimulatorProfile profile = configuration?.Servers.FirstOrDefault(server =>
                 server.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                 ?? throw new ArgumentException(
-                    $"Der Server '{name}' wurde in '{configurationPath}' nicht gefunden.");
+                    $"Server '{name}' was not found in '{configurationPath}'.");
 
             Validate(profile, configurationPath);
 
@@ -53,7 +53,7 @@ public static partial class ServerProgram
             if (string.IsNullOrWhiteSpace(profile.Name))
             {
                 throw new InvalidDataException(
-                    $"Ein Server in '{configurationPath}' besitzt keinen Namen.");
+                    $"A server in '{configurationPath}' has no name.");
             }
 
             ValidatePort(profile.OpcPort, nameof(OpcPort));
@@ -62,7 +62,7 @@ public static partial class ServerProgram
             if (string.IsNullOrWhiteSpace(profile.NodeFilePath))
             {
                 throw new InvalidDataException(
-                    $"Für den Server '{profile.Name}' fehlt NodeFilePath.");
+                    $"NodeFilePath is missing for server '{profile.Name}'.");
             }
         }
 
@@ -76,7 +76,7 @@ public static partial class ServerProgram
 
             return int.TryParse(text, out int port)
                 ? ValidatePort(port, option)
-                : throw new ArgumentException($"{option} enthält keinen gültigen Port.");
+                : throw new ArgumentException($"{option} does not contain a valid port.");
         }
 
         private static int ValidatePort(int port, string propertyName)
@@ -84,7 +84,7 @@ public static partial class ServerProgram
             return port is > 0 and <= 65535
                 ? port
                 : throw new InvalidDataException(
-                    $"{propertyName} enthält keinen gültigen Port.");
+                    $"{propertyName} does not contain a valid port.");
         }
 
         private static string? ReadOption(string[] args, string option)

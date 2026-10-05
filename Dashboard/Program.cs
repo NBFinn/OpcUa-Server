@@ -1,3 +1,5 @@
+System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+
 // Visual Studio can request this optional tooling assembly even when it is unavailable.
 // Exclude only that assembly before creating the web host.
 const string excludedAssembly = "Microsoft.WebTools.ApiEndpointDiscovery";
@@ -17,6 +19,10 @@ builder.Services.AddHttpClient<TestOPCUA_WebApp.Services.TestServerWriter>();
 builder.Services.AddHttpClient<TestOPCUA_WebApp.Services.TestServerConnectionTester>();
 builder.Services.AddHttpClient<TestOPCUA_WebApp.Services.TestServerNodeReader>();
 var app = builder.Build();
+app.UseRequestLocalization(new RequestLocalizationOptions()
+    .SetDefaultCulture("en-US")
+    .AddSupportedCultures("en-US")
+    .AddSupportedUICultures("en-US"));
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();

@@ -8,7 +8,7 @@ internal static class ScenarioParser
     {
         if (!File.Exists(path))
         {
-            throw new FileNotFoundException("Szenariodatei nicht gefunden.", path);
+            throw new FileNotFoundException("Scenario file not found.", path);
         }
 
         string name = Path.GetFileNameWithoutExtension(path);
@@ -85,7 +85,7 @@ internal static class ScenarioParser
 
         if (steps.Count == 0)
         {
-            throw new InvalidDataException($"Das Szenario '{path}' enthält keine Schritte.");
+            throw new InvalidDataException($"Scenario '{path}' contains no steps.");
         }
 
         return new ScenarioDefinition

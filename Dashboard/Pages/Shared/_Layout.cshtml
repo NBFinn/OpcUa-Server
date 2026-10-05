@@ -1,6 +1,6 @@
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,10 +11,10 @@
 <body>
     <main class="page-shell">
         <header class="dashboard-topbar">
-            <span>OPC-UA Serververwaltung</span>
+            <span>OPC UA Server Dashboard</span>
             <a class="aspire-link" href="@(Configuration["Aspire:Url"] ?? "http://localhost:16006")"
-               target="_blank" rel="noopener noreferrer" title="Aspire-Dashboard öffnen"
-               aria-label="Aspire-Dashboard in einem neuen Tab öffnen">
+               target="_blank" rel="noopener noreferrer" title="Open Aspire dashboard"
+               aria-label="Open Aspire dashboard in a new tab">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
                      stroke-width="1.8" aria-hidden="true">
                     <rect x="3" y="3" width="7" height="7" rx="1" />

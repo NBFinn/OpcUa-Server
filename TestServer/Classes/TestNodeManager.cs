@@ -209,7 +209,7 @@ public static partial class ServerProgram
             {
                 if (!TryFindSimulationNode(device, node, out SimulationNode target))
                 {
-                    message = $"Node '{node}' im Gerät '{device}' nicht gefunden.";
+                    message = $"Node '{node}' was not found in device '{device}'.";
                     return false;
                 }
                 try
@@ -255,7 +255,7 @@ public static partial class ServerProgram
             {
                 if (!TryFindSimulationNode(device, node, out SimulationNode target))
                 {
-                    message = $"Node '{node}' im Gerät '{device}' nicht gefunden.";
+                    message = $"Node '{node}' was not found in device '{device}'.";
                     return false;
                 }
                 try
@@ -269,7 +269,7 @@ public static partial class ServerProgram
                 }
                 catch (Exception exception)
                 {
-                    message = $"Node ist nicht numerisch: {exception.Message}";
+                    message = $"Node is not numeric: {exception.Message}";
                     return false;
                 }
             }
@@ -281,7 +281,7 @@ public static partial class ServerProgram
             {
                 if (!simulationNodes.TryGetValue(device, out List<SimulationNode>? nodes))
                 {
-                    message = $"Gerät '{device}' nicht gefunden.";
+                    message = $"Device '{device}' was not found.";
                     return false;
                 }
 
@@ -297,7 +297,7 @@ public static partial class ServerProgram
 
                 if (target is null)
                 {
-                    message = $"Keine passende Störungsvariable für '{code}' gefunden.";
+                    message = $"No matching fault variable was found for '{code}'.";
                     return false;
                 }
 
@@ -305,7 +305,7 @@ public static partial class ServerProgram
                     ? true : code;
                 ApplySimulationValue(target, value);
                 SaveActiveResources();
-                message = $"Störung '{code}' über {target.Resource.Name} aktiviert.";
+                message = $"Fault '{code}' activated through {target.Resource.Name}.";
                 return true;
             }
         }
@@ -429,7 +429,7 @@ public static partial class ServerProgram
                 "datetime" => value is DateTime dateTime ? dateTime :
                     DateTime.Parse(Convert.ToString(value, CultureInfo.InvariantCulture)!,
                         CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
-                _ => throw new InvalidDataException($"Datentyp '{dataType}' ist nicht simulierbar.")
+                _ => throw new InvalidDataException($"Data type '{dataType}' cannot be simulated.")
             };
         }
 
@@ -540,7 +540,7 @@ public static partial class ServerProgram
         {
             if (string.IsNullOrWhiteSpace(sourceNodeId))
             {
-                throw new ArgumentException("Die Quell-NodeId darf nicht leer sein.");
+                throw new ArgumentException("The source NodeId must not be empty.");
             }
 
             try
@@ -573,7 +573,7 @@ public static partial class ServerProgram
                 if (deviceTree is null)
                 {
                     throw new InvalidDataException(
-                        $"Die Device-Datei '{devicePath}' konnte nicht gelesen werden.");
+                        $"Could not read device file '{devicePath}'.");
                 }
 
                 string deviceName = activeProfile?.Name ?? deviceTree.RootFolder.Name;
@@ -588,7 +588,7 @@ public static partial class ServerProgram
                 if (string.IsNullOrWhiteSpace(deviceName))
                 {
                     throw new InvalidDataException(
-                        $"Die Device-Datei '{devicePath}' enthält keinen Gerätenamen.");
+                        $"Device file '{devicePath}' does not contain a device name.");
                 }
 
                 activeDeviceTree = deviceTree;
@@ -615,7 +615,7 @@ public static partial class ServerProgram
             if (!File.Exists(path))
             {
                 throw new FileNotFoundException(
-                    "Die Node-Ressourcendatei wurde nicht gefunden.",
+                    "The node resource file was not found.",
                     path);
             }
 
@@ -657,7 +657,7 @@ public static partial class ServerProgram
             if (resources is null || resources.Devices.Count == 0)
             {
                 throw new InvalidDataException(
-                    $"{resourceName}.json enthält keine Geräte.");
+                    $"{resourceName}.json contains no devices.");
             }
 
             return resources;
@@ -778,7 +778,7 @@ public static partial class ServerProgram
             if (!File.Exists(activeProfile.NodeFilePath))
             {
                 throw new FileNotFoundException(
-                    $"Die konfigurierte Node-Datei für '{activeProfile.Name}' wurde nicht gefunden.",
+                    $"The configured node file for '{activeProfile.Name}' was not found.",
                     activeProfile.NodeFilePath);
             }
 
@@ -839,13 +839,13 @@ public static partial class ServerProgram
                 string.IsNullOrWhiteSpace(device.Name))
             {
                 throw new InvalidDataException(
-                    "Ein Gerät besitzt keine gültige NodeId oder keinen Namen.");
+                    "A device has no valid NodeId or name.");
             }
 
             if (!usedNodeIds.Add(device.NodeId))
             {
                 throw new InvalidDataException(
-                    $"Die Geräte-NodeId '{device.NodeId}' ist doppelt vorhanden.");
+                    $"Device NodeId '{device.NodeId}' is duplicated.");
             }
         }
 
@@ -857,25 +857,25 @@ public static partial class ServerProgram
             if (string.IsNullOrWhiteSpace(resource.NodeId))
             {
                 throw new InvalidDataException(
-                    "Eine Node besitzt keine NodeId.");
+                    "A node has no NodeId.");
             }
 
             if (!usedNodeIds.Add(fullNodeId))
             {
                 throw new InvalidDataException(
-                    $"Die NodeId '{fullNodeId}' ist doppelt vorhanden.");
+                    $"NodeId '{fullNodeId}' is duplicated.");
             }
 
             if (string.IsNullOrWhiteSpace(resource.Name))
             {
                 throw new InvalidDataException(
-                    $"Die Node '{resource.NodeId}' besitzt keinen Namen.");
+                    $"Node '{resource.NodeId}' has no name.");
             }
 
             if (string.IsNullOrWhiteSpace(resource.DataType))
             {
                 throw new InvalidDataException(
-                    $"Die Node '{resource.NodeId}' besitzt keinen Datentyp.");
+                    $"Node '{resource.NodeId}' has no data type.");
             }
         }
 
@@ -980,7 +980,7 @@ public static partial class ServerProgram
                         (DataTypeIds.BaseDataType, null!),
 
                     _ => throw new InvalidDataException(
-                        $"Unbekannter Datentyp " +
+                        $"Unknown data type " +
                         $"'{resource.DataType}'.")
                 };
             }
@@ -990,8 +990,8 @@ public static partial class ServerProgram
                 OverflowException)
             {
                 throw new InvalidDataException(
-                    $"Der Wert der Node '{resource.NodeId}' passt nicht " +
-                    $"zum Datentyp '{resource.DataType}'.",
+                    $"The value of node '{resource.NodeId}' does not match " +
+                    $"data type '{resource.DataType}'.",
                     exception);
             }
         }

@@ -29,15 +29,15 @@ public class TestServerWriter
                 $"{root}/api/opcuaclients/mode?device={device}",
                 new { mode = "Manual" }, cancellationToken);
             if (!modeResponse.IsSuccessStatusCode)
-                return (false, $"Manual-Modus konnte nicht aktiviert werden: HTTP {(int)modeResponse.StatusCode}");
+                return (false, $"Could not enable Manual mode: HTTP {(int)modeResponse.StatusCode}");
             using HttpResponseMessage response = await httpClient.PostAsJsonAsync(
                 $"{root}/api/opcuaclients/set?device={device}",
                 new { node = nodeId, value = convertedValue }, cancellationToken);
             string text = await response.Content.ReadAsStringAsync(cancellationToken);
             string message = ReadMessage(text) ??
                 (response.IsSuccessStatusCode
-                    ? $"Wert wurde als {dataType} geschrieben."
-                    : $"HTTP-Antwort {(int)response.StatusCode}");
+                    ? $"Value written as {dataType}."
+                    : $"HTTP response {(int)response.StatusCode}");
             return (response.IsSuccessStatusCode, message);
         }
         catch (Exception exception) when (
@@ -45,7 +45,7 @@ public class TestServerWriter
         {
             return (
                 false,
-                $"Der Wert '{value}' passt nicht zum Datentyp der Node.");
+                $"The value '{value}' does not match the node's data type.");
         }
         catch (InvalidOperationException exception)
         {
@@ -54,8 +54,8 @@ public class TestServerWriter
         catch (HttpRequestException exception)
         {
             logger.LogError(exception,
-                "Wert konnte nicht an Testserver {ServerName} geschrieben werden", server.Name);
-            return (false, $"Testserver '{server.Name}' ist nicht erreichbar.");
+                "Could not write the value to test server {ServerName}", server.Name);
+            return (false, $"Test server '{server.Name}' is unreachable.");
         }
     }
 
@@ -73,7 +73,7 @@ public class TestServerWriter
             "Double" => double.Parse(value, CultureInfo.InvariantCulture),
             "String" => value,
             _ => throw new InvalidOperationException(
-                $"Der Datentyp '{dataType}' wird von der WebApp noch nicht unterstützt.")
+                $"The web application does not support data type '{dataType}'.")
         };
     }
 

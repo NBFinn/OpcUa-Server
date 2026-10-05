@@ -71,7 +71,7 @@ public static partial class ServerProgram
             }
 
             SimulatorProfile profile = activeProfile ?? throw new InvalidOperationException(
-                "Es wurde kein Simulatorprofil ausgewählt.");
+                "No simulator profile was selected.");
             string pkiRoot = DeleteServerCertificates(profile.Name);
 
             string serverIp = GetPrimaryIpv4Address();
@@ -91,7 +91,7 @@ public static partial class ServerProgram
             if (!certificateOk)
             {
                 throw new InvalidOperationException(
-                    "Das OPC-UA-Zertifikat konnte nicht erstellt werden.");
+                    "Could not create the OPC UA certificate.");
             }
 
             await configuration.ValidateAsync(ApplicationType.Server);
@@ -129,7 +129,7 @@ public static partial class ServerProgram
         if (!string.Equals(Path.GetDirectoryName(pkiRoot),
                 pkiBase, StringComparison.OrdinalIgnoreCase))
         {
-            throw new InvalidOperationException("Ungültiger Zertifikatordner für das Simulatorprofil.");
+            throw new InvalidOperationException("Invalid certificate directory for the simulator profile.");
         }
 
         if (Directory.Exists(pkiRoot))
@@ -294,6 +294,6 @@ public static partial class ServerProgram
         }
 
         throw new InvalidOperationException(
-            "Keine aktive IPv4-Adresse mit Standardgateway gefunden.");
+            "No active IPv4 address with a default gateway was found.");
     }
 }

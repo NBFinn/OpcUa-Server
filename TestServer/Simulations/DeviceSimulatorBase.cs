@@ -32,7 +32,7 @@ internal abstract class DeviceSimulatorBase(string deviceName, ISimulationValueS
         {
             if (string.IsNullOrWhiteSpace(scenarioPath))
             {
-                throw new ArgumentException("Für den Scenario-Modus fehlt der Dateipfad.");
+                throw new ArgumentException("Scenario mode requires a file path.");
             }
 
             ScenarioDefinition scenario = ScenarioParser.Load(scenarioPath);

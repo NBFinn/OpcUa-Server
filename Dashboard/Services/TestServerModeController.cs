@@ -25,7 +25,7 @@ public sealed class TestServerModeController(HttpClient httpClient)
         TestServerConfiguration server, string mode, string? scenarioPath, CancellationToken token)
     {
         if (mode is not ("Static" or "Manual" or "Cyclic" or "Scenario"))
-            return (false, "Bitte einen gültigen Modus auswählen.");
+            return (false, "Select a valid mode.");
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token);
         timeout.CancelAfter(TimeSpan.FromSeconds(5));
         try
@@ -41,16 +41,16 @@ public sealed class TestServerModeController(HttpClient httpClient)
                 {
                     using var error = JsonDocument.Parse(body);
                     if (error.RootElement.TryGetProperty("error", out var message))
-                        return (false, message.GetString() ?? "Modus konnte nicht geändert werden.");
+                        return (false, message.GetString() ?? "Could not change the mode.");
                 }
                 catch (JsonException) { }
-                return (false, $"Moduswechsel fehlgeschlagen: HTTP {(int)response.StatusCode}.");
+                return (false, $"Mode change failed: HTTP {(int)response.StatusCode}.");
             }
-            return (true, $"{server.Name}: {mode} ist aktiv.");
+            return (true, $"{server.Name}: {mode} is active.");
         }
-        catch (HttpRequestException) { return (false, $"Server '{server.Name}' ist nicht erreichbar."); }
+        catch (HttpRequestException) { return (false, $"Server '{server.Name}' is unreachable."); }
         catch (OperationCanceledException) when (!token.IsCancellationRequested)
-        { return (false, "Der Server hat den Moduswechsel nicht rechtzeitig bestätigt."); }
+        { return (false, "The server did not confirm the mode change in time."); }
     }
 
     private sealed class ServerState

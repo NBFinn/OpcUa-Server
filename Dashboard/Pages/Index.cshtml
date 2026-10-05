@@ -1,7 +1,7 @@
 @page
 @model TestOPCUA_WebApp.Pages.IndexModel
 @{
-    ViewData["Title"] = "Testserver verwalten";
+    ViewData["Title"] = "Manage test servers";
 }
 
 @if (!string.IsNullOrWhiteSpace(Model.Message))
@@ -16,32 +16,32 @@
     <section class="panel" id="server-konfiguration" aria-labelledby="config-title">
         <div class="panel-heading">
             <div>
-                <span class="eyebrow">01 / VERBINDUNG</span>
-                <h2 id="config-title">Serverkonfiguration</h2>
+                <span class="eyebrow">01 / CONNECTION</span>
+                <h2 id="config-title">Server configuration</h2>
             </div>
         </div>
-        <p class="panel-description">Trage den Namen und die Adresse der zugehörigen API ein. Die Verbindung wird vor dem Speichern geprüft.</p>
+        <p class="panel-description">Enter the server name and its API address. The connection is checked before saving.</p>
         <form method="post" asp-page-handler="SaveServer" class="form-stack">
             <div class="form-field">
-                <label asp-for="Server.Name">Servername</label>
-                <input asp-for="Server.Name" placeholder="z. B. PLC1" required />
+                <label asp-for="Server.Name">Server name</label>
+                <input asp-for="Server.Name" placeholder="e.g. TestServer" required />
             </div>
             <div class="form-field">
-                <label asp-for="Server.ApiAddress">API-Adresse</label>
+                <label asp-for="Server.ApiAddress">API address</label>
                 <input asp-for="Server.ApiAddress" placeholder="http://localhost:6084" required />
             </div>
-            <button type="submit" class="button button-primary">Server speichern <span aria-hidden="true">→</span></button>
+            <button type="submit" class="button button-primary">Save server <span aria-hidden="true">→</span></button>
         </form>
     </section>
 
     <section class="panel" id="gespeicherte-server" aria-labelledby="servers-title">
         <div class="panel-heading">
             <div>
-                <span class="eyebrow">02 / ÜBERSICHT</span>
-                <h2 id="servers-title">Gespeicherte Testserver</h2>
+                <span class="eyebrow">02 / OVERVIEW</span>
+                <h2 id="servers-title">Saved test servers</h2>
             </div>
             <div class="panel-heading-actions">
-                <a asp-page="/Index" class="status-refresh">Status aktualisieren</a>
+                <a asp-page="/Index" class="status-refresh">Refresh status</a>
                 <span class="count-badge">@Model.Servers.Count</span>
             </div>
         </div>
@@ -49,8 +49,8 @@
         {
             <div class="empty-state">
                 <span class="empty-state-icon" aria-hidden="true">+</span>
-                <p>Noch keine Testserver gespeichert.</p>
-                <small>Lege links deinen ersten Server an.</small>
+                <p>No test servers saved yet.</p>
+                <small>Add your first server using the form on the left.</small>
             </div>
         }
         else
@@ -58,7 +58,7 @@
             <div class="server-list">
                 @foreach (var server in Model.Servers)
                 {
-                    string status = Model.ConnectionStatuses.GetValueOrDefault(server.Name, "Unbekannt");
+                    string status = Model.ConnectionStatuses.GetValueOrDefault(server.Name, "Unknown");
                     string statusClass = status == "Connected" ? "status-connected" :
                         status == "Disconnected" ? "status-disconnected" : "status-unknown";
 
@@ -71,7 +71,7 @@
                         </div>
                         <form method="post" asp-page-handler="DeleteServer">
                             <input type="hidden" name="name" value="@server.Name" />
-                            <button type="submit" class="button button-text-danger" aria-label="@server.Name löschen">Löschen</button>
+                            <button type="submit" class="button button-text-danger" aria-label="Delete @server.Name">Delete</button>
                         </form>
                     </div>
                 }
@@ -83,35 +83,35 @@
 <section class="panel panel-write" id="node-schreiben" aria-labelledby="write-title">
     <div class="panel-heading">
         <div>
-            <span class="eyebrow">03 / SCHREIBEN</span>
-            <h2 id="write-title">Node-Wert schreiben</h2>
+            <span class="eyebrow">03 / WRITE</span>
+            <h2 id="write-title">Write a node value</h2>
         </div>
         <span class="write-label">TESTSERVER</span>
     </div>
-    <p class="panel-description">Beim Schreiben wird der ausgewählte Simulator auf Manual gestellt. Angezeigt werden seine beschreibbaren Nodes.</p>
+    <p class="panel-description">Writing switches the selected simulator to Manual mode. Only writable nodes are shown.</p>
     <form method="post" asp-page-handler="SetMode" class="mode-form">
         <input type="hidden" asp-for="ModeServerName" />
         <div class="form-field">
-            <label asp-for="ServerMode">Modus für <span id="ModeServerLabel">den ausgewählten Server</span></label>
+            <label asp-for="ServerMode">Mode for <span id="ModeServerLabel">the selected server</span></label>
             <select asp-for="ServerMode">
-                <option value="Static">Static – Werte unverändert lassen</option>
-                <option value="Manual">Manual – Werte manuell setzen</option>
-                <option value="Cyclic">Cyclic – zyklische Simulation</option>
-                <option value="Scenario">Scenario – YAML-Szenario abspielen</option>
+                <option value="Static">Static – keep values unchanged</option>
+                <option value="Manual">Manual – set values manually</option>
+                <option value="Cyclic">Cyclic – run cyclic simulation</option>
+                <option value="Scenario">Scenario – run a YAML scenario</option>
             </select>
             <small id="CurrentServerMode" class="node-search-status"></small>
         </div>
         <div class="form-field" id="ScenarioPathField" hidden>
-            <label asp-for="ScenarioPath">Szenariodatei auf dem Server (optional)</label>
-            <input asp-for="ScenarioPath" placeholder="Leer lassen für das konfigurierte Standardszenario" />
+            <label asp-for="ScenarioPath">Scenario file on the server (optional)</label>
+            <input asp-for="ScenarioPath" placeholder="Leave empty to use the default scenario" />
         </div>
-        <button type="submit" id="ApplyServerMode" class="button button-primary">Modus übernehmen</button>
+        <button type="submit" id="ApplyServerMode" class="button button-primary">Apply mode</button>
     </form>
     <form method="post" asp-page-handler="WriteValue" class="write-form">
         <div class="form-field">
-            <label asp-for="WriteServerName">Testserver</label>
+            <label asp-for="WriteServerName">Test server</label>
             <select asp-for="WriteServerName" required>
-                <option value="">Server auswählen</option>
+                <option value="">Select a server</option>
                 @foreach (var server in Model.Servers)
                 {
                     <option value="@server.Name" data-mode="@Model.ModesByServer.GetValueOrDefault(server.Name)">@server.Name</option>
@@ -119,9 +119,9 @@
             </select>
         </div>
         <div class="form-field node-field">
-            <label asp-for="NodeId">Node auswählen</label>
+            <label asp-for="NodeId">Select a node</label>
             <select asp-for="NodeId" required aria-describedby="NodeSearchStatus">
-                <option value="">Node auswählen</option>
+                <option value="">Select a node</option>
                 @foreach (var serverNodes in Model.NodesByServer)
                 {
                     foreach (string nodeId in serverNodes.Value)
@@ -130,18 +130,18 @@
                     }
                 }
             </select>
-            <label for="NodeSearch" class="node-result-label">Suche (optional)</label>
+            <label for="NodeSearch" class="node-result-label">Search (optional)</label>
             <div class="node-search-tools">
-                <input id="NodeSearch" type="search" placeholder="Liste filtern, z. B. Status oder DB1000"
+                <input id="NodeSearch" type="search" placeholder="Filter nodes, e.g. Status or DB1000"
                        autocomplete="off" aria-controls="NodeId" aria-describedby="NodeSearchStatus" />
-                <button type="button" id="NodeSearchClear" class="button button-primary">Alle Nodes anzeigen</button>
+                <button type="button" id="NodeSearchClear" class="button button-primary">Show all nodes</button>
             </div>
             <small id="NodeSearchStatus" class="node-search-status" role="status" aria-live="polite"></small>
         </div>
         <div class="form-field">
-            <label asp-for="DataType">Datentyp</label>
+            <label asp-for="DataType">Data type</label>
             <select asp-for="DataType" required>
-                <option value="">Datentyp auswählen</option>
+                <option value="">Select a data type</option>
                 <option value="Boolean">Boolean</option>
                 <option value="Byte">USInt (Byte)</option>
                 <option value="Int16">Int16</option>
@@ -154,11 +154,11 @@
             </select>
         </div>
         <div class="form-field">
-            <label asp-for="Value">Neuer Wert</label>
-            <input asp-for="Value" placeholder="true, 42 oder Text" required />
+            <label asp-for="Value">New value</label>
+            <input asp-for="Value" placeholder="true, 42 or text" required />
         </div>
         <div class="write-actions">
-            <button type="submit" class="button button-primary">Wert schreiben <span aria-hidden="true">→</span></button>
+            <button type="submit" class="button button-primary">Write value <span aria-hidden="true">→</span></button>
         </div>
     </form>
 </section>

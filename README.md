@@ -30,7 +30,7 @@ dotnet restore AppHost\OpcUaHost.csproj
 dotnet run --project AppHost\OpcUaHost.csproj --launch-profile http
 ```
 
-The AppHost starts the **TestServer** profile and the web dashboard. Aspire opens automatically in the browser. Open the `Serververwaltung` resource in Aspire or navigate to `http://localhost:6180`.
+The AppHost starts the **TestServer** profile and the web dashboard. Aspire opens automatically in the browser. Open the `ServerDashboard` resource in Aspire or navigate to `http://localhost:6180`.
 
 In Visual Studio, open `OpcUA_Server.slnx`, select `OpcUaHost` as the startup project, choose the `http` launch profile and start it.
 
@@ -53,29 +53,29 @@ Aspire prints its token login URL in the console. When started through the AppHo
 
 ## Using the dashboard
 
-The current dashboard interface uses German labels. The first configured server is selected automatically.
+The dashboard interface, validation messages and application messages use English. The first configured server is selected automatically.
 
 ### Add, update or remove a server entry
 
-1. Enter `TestServer` as **Servername**. It must match the running simulator profile name.
-2. Enter `http://localhost:6084` as **API-Adresse**. Do not enter the OPC UA endpoint here.
-3. Select **Server speichern** to validate the connection and save the entry.
-4. Select **Status aktualisieren** to reload the page and refresh connection status.
+1. Enter `TestServer` as **Server name**. It must match the running simulator profile name.
+2. Enter `http://localhost:6084` as **API address**. Do not enter the OPC UA endpoint here.
+3. Select **Save server** to validate the connection and save the entry.
+4. Select **Refresh status** to reload the page and refresh connection status.
 
-Entries are saved in `Dashboard/Data/testservers.json`. Saving an existing name updates that entry. **Löschen** removes only the dashboard entry; it does not stop the simulator or delete its nodes.
+Entries are saved in `Dashboard/Data/testservers.json`. Saving an existing name updates that entry. **Delete** removes only the dashboard entry; it does not stop the simulator or delete its nodes.
 
 ### Find a node and write a value
 
 1. Select the test server.
 2. Choose a node from the dropdown. Without a search term, the full writable-node list is available.
-3. Optionally filter the list using the search field. **Alle Nodes anzeigen** clears the filter.
-4. Select the node's data type, enter a value and select **Wert schreiben**.
+3. Optionally filter the list using the search field. **Show all nodes** clears the filter.
+4. Select the node's data type, enter a value and select **Write value**.
 
 Examples: Boolean `true`, Int16 `42`, String `Test`. The type must match the node. The dashboard switches the simulator to **Manual** before writing.
 
 ### Change the simulation mode
 
-Choose a mode and select **Modus übernehmen**:
+Choose a mode and select **Apply mode**:
 
 | Mode | Behavior |
 | --- | --- |

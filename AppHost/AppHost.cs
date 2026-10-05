@@ -1,3 +1,5 @@
+System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+
 // Visual Studio can request this optional tooling assembly even when it is unavailable.
 // Exclude only that assembly before creating the web host.
 const string excludedAssembly = "Microsoft.WebTools.ApiEndpointDiscovery";
@@ -20,7 +22,7 @@ var simulations = new[] { "TestServer" }
 string aspireUrl = (builder.Configuration["ASPNETCORE_URLS"] ?? "http://localhost:16006")
     .Split(';', StringSplitOptions.RemoveEmptyEntries)[0].TrimEnd('/');
 var dashboard = builder.AddProject<Projects.OpcUA_Server_Dashboard>(
-    "Serververwaltung", launchProfileName: null)
+    "ServerDashboard", launchProfileName: null)
     .WithHttpEndpoint(port: 6180, targetPort: 6180, name: "http", isProxied: false)
     .WithEnvironment(context =>
     {

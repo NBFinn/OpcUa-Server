@@ -106,7 +106,7 @@ internal static class SimulationRuntime
         restTask = RunRestAsync(cancellation.Token);
 
         Console.WriteLine(
-            $"Simulation bereit. CLI: sim help | REST: http://localhost:{restPort}/api/opcuaclients");
+            $"Simulation ready. CLI: sim help | REST: http://localhost:{restPort}/api/opcuaclients");
     }
 
     public static async Task StopAsync()
@@ -151,9 +151,9 @@ internal static class SimulationRuntime
         string[] parts = command.Split(' ', 4, StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 0 || parts[0].Equals("help", StringComparison.OrdinalIgnoreCase))
         {
-            return "sim status | sim mode <Gerät> <Static|Manual|Cyclic> | " +
-                   "sim scenario <Gerät> <Datei> | sim set <Gerät> <Node> <Wert> | " +
-                   "sim increment <Gerät> <Node> <Betrag> | sim fault <Gerät> <Code>";
+            return "sim status | sim mode <device> <Static|Manual|Cyclic> | " +
+                   "sim scenario <device> <file> | sim set <device> <Node> <value> | " +
+                   "sim increment <device> <Node> <amount> | sim fault <device> <Code>";
         }
 
         if (parts[0].Equals("status", StringComparison.OrdinalIgnoreCase))
@@ -164,32 +164,32 @@ internal static class SimulationRuntime
         }
 
         if (parts.Length < 3 || !Simulators.TryGetValue(parts[1], out DeviceSimulatorBase? simulator))
-            return "Unbekannter oder fehlender Gerätename.";
+            return "Unknown or missing device name.";
 
         if (parts[0].Equals("mode", StringComparison.OrdinalIgnoreCase) &&
             Enum.TryParse(parts[2], true, out SimulationMode mode) && mode != SimulationMode.Scenario)
         {
             await simulator.SetModeAsync(mode, cancellationToken: token);
-            return $"{simulator.DeviceName}: {mode} aktiv.";
+            return $"{simulator.DeviceName}: {mode} active.";
         }
 
         if (parts[0].Equals("scenario", StringComparison.OrdinalIgnoreCase))
         {
             string path = command.Split(' ', 3, StringSplitOptions.RemoveEmptyEntries)[2].Trim('"');
             await simulator.SetModeAsync(SimulationMode.Scenario, path, token);
-            return $"{simulator.DeviceName}: Szenario gestartet.";
+            return $"{simulator.DeviceName}: scenario started.";
         }
 
-        if (simulator.Mode != SimulationMode.Manual) return "Gerät ist nicht im Manual-Modus.";
+        if (simulator.Mode != SimulationMode.Manual) return "Device is not in Manual mode.";
 
         if (parts[0].Equals("fault", StringComparison.OrdinalIgnoreCase))
         {
             bool faultSuccess = store!.TryActivateMalfunction(
                 parts[1], parts[2], out string faultMessage);
-            return faultSuccess ? faultMessage : $"Fehler: {faultMessage}";
+            return faultSuccess ? faultMessage : $"Error: {faultMessage}";
         }
 
-        if (parts.Length < 4) return "Befehl unvollständig.";
+        if (parts.Length < 4) return "Incomplete command.";
 
         bool success;
         string message;
@@ -201,14 +201,14 @@ internal static class SimulationRuntime
             case "increment":
                 if (!double.TryParse(parts[3], System.Globalization.NumberStyles.Float,
                     System.Globalization.CultureInfo.InvariantCulture, out double amount))
-                    return "Ungültiger Zahlenwert.";
+                    return "Invalid numeric value.";
                 success = store!.TryIncrement(parts[1], parts[2], amount, out message);
                 break;
             default:
-                return "Unbekannter Befehl. Verwende 'sim help'.";
+                return "Unknown command. Use 'sim help'.";
         }
 
-        return success ? message : $"Fehler: {message}";
+        return success ? message : $"Error: {message}";
     }
 
     private static async Task RunRestAsync(CancellationToken token)
@@ -221,7 +221,7 @@ internal static class SimulationRuntime
         }
         catch (Exception exception)
         {
-            Console.Error.WriteLine($"Simulations-REST konnte nicht starten: {exception.Message}");
+            Console.Error.WriteLine($"Could not start simulation REST API: {exception.Message}");
             return;
         }
 
@@ -258,7 +258,7 @@ internal static class SimulationRuntime
                 string valuesDevice = context.Request.QueryString["device"] ?? "";
                 if (!Simulators.ContainsKey(valuesDevice))
                 {
-                    await RespondAsync(context, 404, new { error = "Unbekanntes Gerät." }, token);
+                    await RespondAsync(context, 404, new { error = "Unknown device." }, token);
                     return;
                 }
 
@@ -268,14 +268,14 @@ internal static class SimulationRuntime
 
             if (context.Request.HttpMethod != "POST")
             {
-                await RespondAsync(context, 405, new { error = "GET oder POST erwartet." }, token);
+                await RespondAsync(context, 405, new { error = "Expected GET or POST." }, token);
                 return;
             }
 
             string device = context.Request.QueryString["device"] ?? "";
             if (!Simulators.TryGetValue(device, out DeviceSimulatorBase? simulator))
             {
-                await RespondAsync(context, 404, new { error = "Unbekanntes Gerät." }, token);
+                await RespondAsync(context, 404, new { error = "Unknown device." }, token);
                 return;
             }
 
@@ -285,7 +285,7 @@ internal static class SimulationRuntime
             {
                 if (!Enum.TryParse(body.GetProperty("mode").GetString(), true, out SimulationMode mode))
                 {
-                    await RespondAsync(context, 400, new { error = "Ungültiger Modus." }, token);
+                    await RespondAsync(context, 400, new { error = "Invalid mode." }, token);
                     return;
                 }
 
@@ -302,7 +302,7 @@ internal static class SimulationRuntime
 
             if (simulator.Mode != SimulationMode.Manual)
             {
-                await RespondAsync(context, 409, new { error = "Gerät ist nicht im Manual-Modus." }, token);
+                await RespondAsync(context, 409, new { error = "Device is not in Manual mode." }, token);
                 return;
             }
 
@@ -317,7 +317,7 @@ internal static class SimulationRuntime
                 success = store!.TryActivateMalfunction(device, body.GetProperty("code").GetString() ?? "", out message);
             else
             {
-                await RespondAsync(context, 404, new { error = "Unbekannte Route." }, token);
+                await RespondAsync(context, 404, new { error = "Unknown route." }, token);
                 return;
             }
 

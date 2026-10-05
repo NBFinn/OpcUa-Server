@@ -71,7 +71,7 @@ namespace TestOPCUA_WebApp.Pages
                  apiAddress.Scheme != Uri.UriSchemeHttps) ||
                 apiAddress.Port is < 1 or > 65535)
             {
-                Message = "Bitte einen Namen und eine gültige API-Adresse angeben.";
+                Message = "Enter a server name and a valid API address.";
                 IsError = true;
                 return RedirectToPage();
             }
@@ -81,20 +81,20 @@ namespace TestOPCUA_WebApp.Pages
                 HttpContext.RequestAborted);
             if (!reachable)
             {
-                Message = $"Server wurde nicht gespeichert: {testMessage}";
+                Message = $"Server was not saved: {testMessage}";
                 IsError = true;
                 return RedirectToPage();
             }
 
             await configurationStore.SaveAsync(Server);
-            Message = $"API für '{Server.Name}' wurde geprüft und gespeichert.";
+            Message = $"The API for '{Server.Name}' was verified and saved.";
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostDeleteServerAsync(string name)
         {
             await configurationStore.DeleteAsync(name);
-            Message = $"Server '{name}' wurde gelöscht.";
+            Message = $"Server '{name}' was deleted.";
             return RedirectToPage();
         }
 
@@ -103,7 +103,7 @@ namespace TestOPCUA_WebApp.Pages
             var server = await configurationStore.GetAsync(ModeServerName);
             if (server is null)
             {
-                Message = "Der ausgewählte Server wurde nicht gefunden.";
+                Message = "The selected server was not found.";
                 IsError = true;
                 return RedirectToPage();
             }
@@ -119,7 +119,7 @@ namespace TestOPCUA_WebApp.Pages
             TestServerConfiguration? server = await configurationStore.GetAsync(WriteServerName);
             if (server is null)
             {
-                Message = "Der ausgewählte Testserver wurde nicht gefunden.";
+                Message = "The selected test server was not found.";
                 IsError = true;
                 return RedirectToPage();
             }

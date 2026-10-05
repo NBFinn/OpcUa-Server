@@ -1,4 +1,24 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Keep browser validation messages in English regardless of browser language.
+    const validationMessages = {
+        Server_Name: "Enter a server name.",
+        Server_ApiAddress: "Enter an API address.",
+        WriteServerName: "Select a test server.",
+        NodeId: "Select a node.",
+        DataType: "Select a data type.",
+        Value: "Enter a value."
+    };
+    for (const field of document.querySelectorAll("input[required], select[required]")) {
+        field.addEventListener("invalid", () => {
+            field.setCustomValidity(field.validity.valueMissing
+                ? validationMessages[field.id] || "Complete this field."
+                : "Enter a valid value.");
+        });
+        const clearValidation = () => field.setCustomValidity("");
+        field.addEventListener("input", clearValidation);
+        field.addEventListener("change", clearValidation);
+    }
+
     const serverSelect = document.getElementById("WriteServerName");
     const nodeSelect = document.getElementById("NodeId");
     const searchInput = document.getElementById("NodeSearch");
@@ -21,9 +41,9 @@ document.addEventListener("DOMContentLoaded", function () {
         modeServer.value = serverSelect.value;
         const mode = selected?.dataset.mode || "";
         if (mode) modeSelect.value = mode;
-        document.getElementById("ModeServerLabel").textContent = serverSelect.value || "keinen Server";
+        document.getElementById("ModeServerLabel").textContent = serverSelect.value || "no server selected";
         document.getElementById("CurrentServerMode").textContent =
-            mode ? "Aktuell: " + mode : "Aktueller Modus nicht verfügbar";
+            mode ? "Current: " + mode : "Current mode unavailable";
         document.getElementById("ApplyServerMode").disabled = !serverSelect.value;
         updateScenarioField();
     }
@@ -38,30 +58,31 @@ document.addEventListener("DOMContentLoaded", function () {
             id: option.value,
             label: option.textContent,
             server: option.dataset.server,
-            searchable: option.textContent.toLocaleLowerCase("de")
+            searchable: option.textContent.toLocaleLowerCase("en")
         }));
 
     function filterNodes() {
+        nodeSelect.setCustomValidity("");
         const selectedId = nodeSelect.value;
         const server = serverSelect.value;
-        const terms = searchInput.value.trim().toLocaleLowerCase("de")
+        const terms = searchInput.value.trim().toLocaleLowerCase("en")
             .split(/\s+/).filter(Boolean);
         const serverNodes = nodes.filter(node => node.server === server);
         const matches = serverNodes.filter(node =>
             terms.every(term => node.searchable.includes(term)));
 
         nodeSelect.replaceChildren(new Option(
-            !server ? "Zuerst Testserver auswählen" :
-            matches.length ? "Node auswählen" : "Keine passende Node gefunden", ""));
+            !server ? "Select a test server first" :
+            matches.length ? "Select a node" : "No matching nodes found", ""));
         for (const node of matches) {
             nodeSelect.add(new Option(node.label, node.id));
         }
         if (matches.some(node => node.id === selectedId)) nodeSelect.value = selectedId;
         searchInput.disabled = !server;
         nodeSelect.disabled = !server || matches.length === 0;
-        status.textContent = !server ? "Zuerst einen Testserver auswählen." :
-            terms.length ? matches.length + " von " + serverNodes.length + " Nodes gefunden" :
-            serverNodes.length + " Nodes · durch die Liste scrollen oder optional suchen";
+        status.textContent = !server ? "Select a test server first." :
+            terms.length ? matches.length + " of " + serverNodes.length + " nodes found" :
+            serverNodes.length + " nodes · browse the list or use search";
     }
 
     serverSelect.addEventListener("change", function () {
