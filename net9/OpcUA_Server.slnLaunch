@@ -1,0 +1,11 @@
+[
+  {
+    "Name": "Full application",
+    "Projects": [
+      {
+        "Path": "AppHost\\OpcUaHost.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

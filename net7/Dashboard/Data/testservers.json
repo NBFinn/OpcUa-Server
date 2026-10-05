@@ -1,0 +1,6 @@
+[
+  {
+    "Name": "TestServer",
+    "ApiAddress": "http://localhost:6084"
+  }
+]

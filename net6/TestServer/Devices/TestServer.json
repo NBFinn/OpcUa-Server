@@ -1,0 +1,65 @@
+{
+  "Configuration": {
+    "DeviceIdentifier": "TestServer",
+    "ServerUrl": "opc.tcp://localhost:5844/TestServerSimulator",
+    "Host": "localhost",
+    "Port": 5844,
+    "Protocol": "opc.tcp",
+    "DefaultUpdateRate": "1000"
+  },
+  "RootFolder": {
+    "Name": "TestServer",
+    "DataType": "Object",
+    "NodeType": "Object",
+    "Children": {
+      "Enabled": {
+        "Name": "Enabled",
+        "DataType": "Boolean",
+        "NodeType": "Variable",
+        "NodeId": "ns=3;s=Test.Enabled",
+        "Value": false,
+        "SourceServerId": "opc.tcp://localhost:5844/TestServerSimulator",
+        "SourceItemLocation": "Demo",
+        "UpdateRate": "1000",
+        "Writable": true,
+        "Children": {}
+      },
+      "Counter": {
+        "Name": "Counter",
+        "DataType": "Int32",
+        "NodeType": "Variable",
+        "NodeId": "ns=3;s=Test.Counter",
+        "Value": 0,
+        "SourceServerId": "opc.tcp://localhost:5844/TestServerSimulator",
+        "SourceItemLocation": "Demo",
+        "UpdateRate": "1000",
+        "Writable": true,
+        "Children": {}
+      },
+      "Temperature": {
+        "Name": "Temperature",
+        "DataType": "Double",
+        "NodeType": "Variable",
+        "NodeId": "ns=3;s=Test.Temperature",
+        "Value": 20.0,
+        "SourceServerId": "opc.tcp://localhost:5844/TestServerSimulator",
+        "SourceItemLocation": "Demo",
+        "UpdateRate": "1000",
+        "Writable": true,
+        "Children": {}
+      },
+      "Message": {
+        "Name": "Message",
+        "DataType": "String",
+        "NodeType": "Variable",
+        "NodeId": "ns=3;s=Test.Message",
+        "Value": "Hello from TestServer",
+        "SourceServerId": "opc.tcp://localhost:5844/TestServerSimulator",
+        "SourceItemLocation": "Demo",
+        "UpdateRate": "1000",
+        "Writable": true,
+        "Children": {}
+      }
+    }
+  }
+}
