@@ -1,0 +1,16 @@
+scenario:
+  name: flyer-normal-production
+  steps:
+    - afterMs: 0
+      set:
+        Bereit: false
+        PalletWidth: 0
+    - afterMs: 2000
+      set:
+        Bereit: true
+    - afterMs: 4000
+      set:
+        PalletWidth: 800
+    - afterMs: 10000
+      increment:
+        PalletWidth: 10

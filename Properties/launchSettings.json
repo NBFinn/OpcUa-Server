@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OpcUA_Server": {
+      "commandName": "Project",
+      "commandLineArgs": "--profile PLC1"
+    }
+  }
+}

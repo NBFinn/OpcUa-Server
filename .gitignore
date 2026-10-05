@@ -1,0 +1,15 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.aspire/
+*.user
+*.suo
+*.log
+*.zip
+*.pfx
+*.p12
+*.der
+*.pem
+**/OpcUA_Server/SimulatorPki/
+**/OpcUA_Server/AdapterPki/
+OpcUaAdapter/
