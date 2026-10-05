@@ -4,8 +4,6 @@ Choose the folder matching the .NET version you want to use. Each folder is an i
 
 | Folder | Server and web management | Aspire host | IDE |
 | --- | --- | --- | --- |
-| [net6](net6/README.md) | .NET 6 | .NET 8 / Aspire 9.5.2 | Visual Studio 2022 17.10+ |
-| [net7](net7/README.md) | .NET 7 | .NET 8 / Aspire 9.5.2 | Visual Studio 2022 17.10+ |
 | [net8](net8/README.md) | .NET 8 | .NET 8 / Aspire 9.5.2 | Visual Studio 2022 17.10+ |
 | [net9](net9/README.md) | .NET 9 | .NET 9 / Aspire 9.5.2 | Visual Studio 2022 17.12+ |
 | [net10](net10/README.md) | .NET 10 | .NET 10 / Aspire 13.5.4 | Visual Studio 2026 |
@@ -34,9 +32,9 @@ Every variant contains the same four generic writable nodes: `Test.Enabled` (Boo
 
 ## Compatibility limits
 
-The .NET 6/7 variants need a C# 12-capable .NET 8-or-newer SDK and the matching legacy application runtimes. Aspire supports .NET 8 and newer, so those two folders use a .NET 8 host to launch their .NET 6/7 applications. Aspire 9.5.2 is an out-of-support compatibility release; use `net10` for the current Aspire version. Legacy .NET 6/7 builds may show end-of-support and package framework-support warnings.
+Aspire 9.5.2 is an out-of-support compatibility release used by the .NET 8 and .NET 9 variants; use `net10` for the current Aspire version.
 
-All five complete solutions build. Runtime checks and any untested targets are recorded in the individual folder README files. Install the matching .NET and ASP.NET Core runtimes, plus the SDK required by the selected host. Visual Studio itself must support that SDK; see [Microsoft's support matrix](https://learn.microsoft.com/en-us/dotnet/core/porting/versioning-sdk-msbuild-vs). Aspire 9.5.2 framework metadata is available on [NuGet](https://www.nuget.org/packages/Aspire.Hosting.AppHost/9.5.2).
+All three complete solutions build, and full startup checks passed for .NET 8, .NET 9 and .NET 10. Validation details are recorded in the individual folder README files. Install the matching .NET and ASP.NET Core runtimes, plus the SDK required by the selected host. Visual Studio itself must support that SDK; see [Microsoft's support matrix](https://learn.microsoft.com/en-us/dotnet/core/porting/versioning-sdk-msbuild-vs). Aspire 9.5.2 framework metadata is available on [NuGet](https://www.nuget.org/packages/Aspire.Hosting.AppHost/9.5.2).
 
 See each folder's README for node writing, modes, configuration, standalone startup, certificates and troubleshooting.
 
