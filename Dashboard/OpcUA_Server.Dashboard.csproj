@@ -1,17 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
+  <Import Project="..\Build\ServerTargetFramework.props" />
 
   <PropertyGroup>
-    <Configurations>Debug;Release;Debug-Net6;Debug-Net7;Debug-Net8;Debug-Net9;Debug-Net10</Configurations>
-    <ServerTargetFramework Condition="'$(ServerTargetFramework)' == '' and '$(Configuration)' == 'Debug-Net6'">net6.0</ServerTargetFramework>
-    <ServerTargetFramework Condition="'$(ServerTargetFramework)' == '' and '$(Configuration)' == 'Debug-Net7'">net7.0</ServerTargetFramework>
-    <ServerTargetFramework Condition="'$(ServerTargetFramework)' == '' and '$(Configuration)' == 'Debug-Net8'">net8.0</ServerTargetFramework>
-    <ServerTargetFramework Condition="'$(ServerTargetFramework)' == '' and '$(Configuration)' == 'Debug-Net9'">net9.0</ServerTargetFramework>
-    <ServerTargetFramework Condition="'$(ServerTargetFramework)' == '' and '$(Configuration)' == 'Debug-Net10'">net10.0</ServerTargetFramework>
-    <DebugSymbols Condition="$(Configuration.StartsWith('Debug-Net'))">true</DebugSymbols>
-    <DebugType Condition="$(Configuration.StartsWith('Debug-Net'))">portable</DebugType>
-    <Optimize Condition="$(Configuration.StartsWith('Debug-Net'))">false</Optimize>
-    <DefineConstants Condition="$(Configuration.StartsWith('Debug-Net'))">$(DefineConstants);DEBUG;TRACE</DefineConstants>
-    <ServerTargetFramework Condition="'$(ServerTargetFramework)' == ''">net8.0</ServerTargetFramework>
     <TargetFramework>$(ServerTargetFramework)</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings><LangVersion>12.0</LangVersion>

@@ -8,7 +8,7 @@ The OPC UA client adapter is maintained separately in [NBFinn/OpcUa-Adapter](htt
 
 - Windows is the environment used for validation.
 - For Visual Studio 2022, install the **.NET 8 SDK** and the **ASP.NET and web development** workload. Use Visual Studio 2022 17.8 or later; 17.11 or later supports the shared multi-project launch profile.
-- Server and dashboard default to **.NET 8**. The optional current Aspire AppHost requires the **.NET 10 SDK** and Visual Studio 2026 or the CLI.
+- Server and dashboard automatically choose a target matching the selected SDK and Visual Studio toolchain. The current Aspire AppHost requires the **.NET 10 SDK** and Visual Studio 2026 or the CLI.
 - For standalone applications, install the runtime matching the selected target. The dashboard also requires the corresponding ASP.NET Core runtime.
 - Restore NuGet packages before the first build.
 
@@ -22,10 +22,10 @@ The OPC UA client adapter is maintained separately in [NBFinn/OpcUa-Adapter](htt
 
 .NET Framework 4.x, .NET Core 3.1 and .NET 5 are not configured as targets for this solution. Runtime compatibility does not imply compatibility with older SDKs: the server and dashboard use C# 12.
 
-## Quick start in Visual Studio 2022 (.NET 8)
+## Quick start with automatic framework selection
 
 1. Open **`OpcUA_Server.sln`**. This classic solution includes only the server and dashboard; it does not load the .NET 10 Aspire host.
-2. Select **Debug** or **Debug-Net8** in the solution configuration dropdown. Both use .NET 8.
+2. Keep the ordinary **Debug** configuration. The framework is selected automatically; no `Debug-Net...` selection is needed.
 3. Select the **Server and Dashboard** startup profile and press F5.
 4. The dashboard opens at `http://localhost:6180`. The server's REST API uses port `6084`.
 
@@ -33,7 +33,20 @@ For Visual Studio 2022 17.11 or later, enable **Tools > Options > Environment > 
 
 The configuration dropdown also provides **Debug-Net6**, **Debug-Net7**, **Debug-Net9** and **Debug-Net10**. Each selects the same framework for both applications. Install the matching runtime; the dashboard requires the matching ASP.NET Core runtime. .NET 9 requires a compatible Visual Studio 2022 update (17.12 or later); .NET 10 requires Visual Studio 2026 or the CLI. Legacy .NET 6/7 targets still need a C# 12-capable build toolchain.
 
-To build the default .NET 8 solution from a terminal:
+The shared `Build/ServerTargetFramework.props` applies the same automatic selection to both applications:
+
+| Selected toolchain | Automatic application target |
+| --- | --- |
+| .NET 8 SDK | .NET 8 |
+| .NET 9 SDK | .NET 9; .NET 8 in Visual Studio 2022 before 17.12 |
+| .NET 10 SDK, CLI or Visual Studio 2026 | .NET 10 |
+| Newer SDK loaded in Visual Studio 2022 | At most .NET 9; at most .NET 8 before 17.12 |
+
+SDK selection happens before project evaluation. Install a compatible SDK through Visual Studio Installer; this project cannot make an unsupported SDK load in an older IDE. The matching .NET and ASP.NET Core runtimes must also be installed. A runtime alone is not a build SDK. Automatic targets are limited to the tested .NET 8-10 range; .NET 6/7 remain explicit legacy targets and require the C# 12 toolchain.
+
+These IDE limits follow the [Microsoft SDK and Visual Studio support matrix](https://learn.microsoft.com/en-us/dotnet/core/porting/versioning-sdk-msbuild-vs).
+
+To build with automatic framework selection from a terminal:
 
 ```powershell
 git clone https://github.com/NBFinn/OpcUa-Server.git
@@ -48,7 +61,7 @@ dotnet restore AppHost\OpcUaHost.csproj
 dotnet run --project AppHost\OpcUaHost.csproj --launch-profile http
 ```
 
-The AppHost itself uses .NET 10, while its server and dashboard default to .NET 8. Aspire opens automatically in the browser. Open the `ServerDashboard` resource or navigate to `http://localhost:6180`.
+The AppHost itself uses .NET 10. Its server and dashboard use the same automatic target selection and normally run on .NET 10 when launched through the .NET 10 CLI. Aspire opens automatically in the browser. Open the `ServerDashboard` resource or navigate to `http://localhost:6180`.
 
 For Aspire in Visual Studio 2026, open `OpcUA_Server.slnx`, select `OpcUaHost` as the startup project, choose `http`, and start it. Keep `OpcUA_Server.sln` for Visual Studio 2022.
 
@@ -108,7 +121,7 @@ These are simulation modes, independent of OPC UA transport security modes such 
 
 ## Standalone startup and target selection
 
-To start only the server with its default .NET 8 target:
+To start only the server with automatic framework selection:
 
 ```powershell
 dotnet run --project OpcUA_Server.csproj -- --profile TestServer
@@ -138,7 +151,7 @@ dotnet build OpcUA_Server.csproj -c Release -p:ServerTargetFramework=net8.0
 dotnet build Dashboard\OpcUA_Server.Dashboard.csproj -c Release -p:ServerTargetFramework=net8.0
 ```
 
-Output is written to `bin/Release/net8.0` and `Dashboard/bin/Release/net8.0`. The AppHost uses .NET 10; its child applications default to .NET 8. `ServerTargetFramework` changes the child applications only. In Visual Studio, the `Debug-Net6` through `Debug-Net10` solution configurations provide the same selection without editing project files.
+Output is written to `bin/Release/net8.0` and `Dashboard/bin/Release/net8.0`. The AppHost uses .NET 10; its child applications select their target automatically. `ServerTargetFramework` overrides the child applications only. The optional `Debug-Net6` through `Debug-Net10` configurations force a particular target. Keep `Debug` or `Release` for automatic selection.
 
 Do not start the same simulator ports both standalone and through Aspire. Without a running AppHost, the dashboard's Aspire link does not provide an active Aspire instance.
 
