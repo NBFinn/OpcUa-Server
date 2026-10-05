@@ -30,6 +30,12 @@ Aspire uses `http://localhost:16006`, node management uses `http://localhost:618
 
 Every variant contains the same four generic writable nodes: `Test.Enabled` (Boolean), `Test.Counter` (Int32), `Test.Temperature` (Double), and `Test.Message` (String), in namespace 3. A two-second demo scenario is included. No original machine data or fixed LAN IP addresses are present in the current source tree. Older commits still contain the previous data.
 
+## Upstream alignment
+
+The simulator and management interface were compared with the current local upstream project on October 5, 2026, including its uncommitted changes. The shared node model, node manager, simulator lifecycle, mode handling and scenario parser already match the upstream behavior. English messages, generic test data and the standalone dashboard integrations are intentional adaptations.
+
+Upstream now checks whether the configured OPC UA port is occupied and rejects startup if it is. These variants preserve automatic selection of available OPC UA and REST ports, including startup conflict retries. The upstream gateway API's explicit client-port configuration is not copied here: the management page talks directly to the simulator REST API, and the adapter remains separate. No upstream source or configuration is modified by this project.
+
 ## Compatibility limits
 
 Aspire 9.5.2 is an out-of-support compatibility release used by the .NET 8 and .NET 9 variants; use `net10` for the current Aspire version.

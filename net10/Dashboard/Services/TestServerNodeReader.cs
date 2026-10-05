@@ -12,7 +12,7 @@ public class TestServerNodeReader(HttpClient httpClient)
         try
         {
             using JsonDocument values = await httpClient.GetFromJsonAsync<JsonDocument>(url, cancellationToken)
-                ?? throw new InvalidOperationException("Keine Variablenantwort.");
+                ?? throw new InvalidOperationException("The server returned no node values.");
             return values.RootElement.EnumerateArray()
                 .Where(value => value.GetProperty("writable").GetBoolean())
                 .Select(value => value.GetProperty("nodeId").GetString()!)
