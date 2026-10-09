@@ -6,7 +6,7 @@ namespace OpcUA_Server;
 
 internal static class PortSelection
 {
-    public static int FindAvailable(int preferredPort, string service)
+    public static int FindAvailable(int preferredPort, string service, Action<string>? log = null)
     {
         // Wrap at 65535; never select a privileged fallback port.
         for (int offset = 0; offset < 65535; offset++)
@@ -15,7 +15,7 @@ internal static class PortSelection
             if (offset > 0 && port < 1024) continue;
             if (!IsAvailable(port)) continue;
             if (port != preferredPort)
-                Console.WriteLine($"{service}: port {preferredPort} is unavailable; using {port}.");
+                log?.Invoke($"{service}: port {preferredPort} is unavailable; using {port}.");
             return port;
         }
 

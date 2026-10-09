@@ -10,20 +10,8 @@ internal sealed class ServerSettings
     public int Port { get; init; } = 5844;
     public List<NodeSettings> Nodes { get; init; } = [];
 
-    public static ServerSettings Load(string[] args)
+    public static ServerSettings Load(string path, int? portOverride)
     {
-        string path = Path.Combine(AppContext.BaseDirectory, "server.json");
-        int? portOverride = null;
-        for (int i = 0; i < args.Length; i++)
-        {
-            if (i + 1 >= args.Length) throw new ArgumentException($"Missing value after {args[i]}.");
-            switch (args[i])
-            {
-                case "--config": path = Path.GetFullPath(args[++i]); break;
-                case "--port": portOverride = int.Parse(args[++i]); break;
-                default: throw new ArgumentException($"Unknown argument: {args[i]}.");
-            }
-        }
         var settings = JsonSerializer.Deserialize<ServerSettings>(File.ReadAllText(path), new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
