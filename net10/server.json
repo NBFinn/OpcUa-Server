@@ -1,0 +1,11 @@
+{
+  "Name": "TestServer",
+  "Host": "localhost",
+  "Port": 5844,
+  "Nodes": [
+    { "Id": "ns=3;s=Test.Enabled", "Name": "Enabled", "Type": "Boolean", "Value": false, "Writable": true },
+    { "Id": "ns=3;s=Test.Counter", "Name": "Counter", "Type": "Int32", "Value": 0, "Writable": true },
+    { "Id": "ns=3;s=Test.Temperature", "Name": "Temperature", "Type": "Double", "Value": 20.0, "Writable": true },
+    { "Id": "ns=3;s=Test.Message", "Name": "Message", "Type": "String", "Value": "Hello from TestServer", "Writable": true }
+  ]
+}

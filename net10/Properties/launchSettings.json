@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "OpcUA_Server": {
-      "commandName": "Project",
-      "commandLineArgs": "--profile TestServer"
-    }
-  }
-}

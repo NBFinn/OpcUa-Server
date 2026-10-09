@@ -1,47 +1,49 @@
 # OPC UA Server
 
-Choose the folder matching the .NET version you want to use. Each folder is an independent project containing the OPC UA test server, its node management interface, and an Aspire dashboard. There is no automatic framework switching.
+A standalone OPC UA server with four writable test nodes. Start the console project directly. It has no dashboard, Aspire host, REST API, simulation modes, mediator, gateway or adapter integration.
 
-| Folder | Server and web management | Aspire host | IDE |
-| --- | --- | --- | --- |
-| [net8](net8/README.md) | .NET 8 | .NET 8 / Aspire 9.5.2 | Visual Studio 2022 17.10+ |
-| [net9](net9/README.md) | .NET 9 | .NET 9 / Aspire 9.5.2 | Visual Studio 2022 17.12+ |
-| [net10](net10/README.md) | .NET 10 | .NET 10 / Aspire 13.5.4 | Visual Studio 2026 |
+Choose the independent folder for your runtime:
 
-## Start
+| Folder | Runtime | Start |
+| --- | --- | --- |
+| [net8](net8/README.md) | .NET 8 | `dotnet run --project net8/OpcUA_Server.csproj` |
+| [net9](net9/README.md) | .NET 9 | `dotnet run --project net9/OpcUA_Server.csproj` |
+| [net10](net10/README.md) | .NET 10 | `dotnet run --project net10/OpcUA_Server.csproj` |
 
-1. Open `OpcUA_Server.sln` inside your chosen folder.
-2. Select **OpcUaHost** as the startup project and the **http** launch profile.
-3. Press F5. Aspire starts both the server and the node management interface.
+Install a .NET SDK capable of building the chosen target and its matching runtime. The only direct package dependency is `OPCFoundation.NetStandard.Opc.Ua.Server` 1.5.378.176, together with the dependencies required by that OPC UA SDK. No ASP.NET runtime is required.
 
-The shared **Full application** launch profile also starts the host. The host handles both child applications; do not additionally start the children yourself.
+In Visual Studio, open the solution inside the chosen folder, select `OpcUA_Server` and press F5. Visual Studio and the installed SDK must support that target. There is no browser launch. Stop using Ctrl+C in the console.
 
-For example, to start the .NET 8 variant from the CLI:
+The preferred endpoint is `opc.tcp://localhost:5844/TestServerSimulator`. If that TCP port is occupied, the server selects another available port and prints the actual endpoint. Use the printed endpoint in your OPC UA client.
 
-```powershell
-git clone https://github.com/NBFinn/OpcUa-Server.git
-cd OpcUa-Server\net8
-dotnet run --project AppHost\OpcUaHost.csproj --launch-profile http
+## Structure
+
+Every version contains only:
+
+```text
+OpcUA_Server.sln
+OpcUA_Server.csproj
+Program.cs
+server.json
+Server/
+  ServerSettings.cs       JSON configuration and validation
+  ServerConfiguration.cs  OPC UA security and certificate settings
+  TestServer.cs           Address space with readable/writable variables
+  PortSelection.cs        Available TCP port selection and conflict detection
+README.md
 ```
 
-Aspire uses `http://localhost:16006`, node management uses `http://localhost:6180`, and the REST API uses `http://localhost:6084`. Follow the Aspire token login URL printed in the host console. The Aspire button in the node management page includes that token automatically. The server automatically skips occupied OPC UA and REST ports; its final addresses appear in the log and the management page discovers the REST port when started through Aspire. The Aspire dashboard, telemetry/resource and management ports remain separately configured, so run only one complete host at a time unless you change those ports.
+Values change through standard OPC UA writes and remain in memory until shutdown. There are no scenarios, REST routes or automatic value generators. Restarting restores the JSON initial values. The old device-tree/profile JSON format has been replaced by the small `server.json` file; it is not imported automatically.
 
-## Test data
+## Nodes
 
-Every variant contains the same four generic writable nodes: `Test.Enabled` (Boolean), `Test.Counter` (Int32), `Test.Temperature` (Double), and `Test.Message` (String), in namespace 3. A two-second demo scenario is included. No original machine data or fixed LAN IP addresses are present in the current source tree. Older commits still contain the previous data.
+| Node ID | Type | Initial value |
+| --- | --- | --- |
+| `ns=3;s=Test.Enabled` | Boolean | `false` |
+| `ns=3;s=Test.Counter` | Int32 | `0` |
+| `ns=3;s=Test.Temperature` | Double | `20.0` |
+| `ns=3;s=Test.Message` | String | `Hello from TestServer` |
 
-## Upstream alignment
+All four nodes are writable. Node IDs are kept compatible with the previous test data. Connect with an OPC UA client or the separate [direct adapter](https://github.com/NBFinn/OpcUa-Adapter).
 
-The simulator and management interface were compared with the current local upstream project on October 5, 2026, including its uncommitted changes. The shared node model, node manager, simulator lifecycle, mode handling and scenario parser already match the upstream behavior. English messages, generic test data and the standalone dashboard integrations are intentional adaptations.
-
-Upstream now checks whether the configured OPC UA port is occupied and rejects startup if it is. These variants preserve automatic selection of available OPC UA and REST ports, including startup conflict retries. The upstream gateway API's explicit client-port configuration is not copied here: the management page talks directly to the simulator REST API, and the adapter remains separate. No upstream source or configuration is modified by this project.
-
-## Compatibility limits
-
-Aspire 9.5.2 is an out-of-support compatibility release used by the .NET 8 and .NET 9 variants; use `net10` for the current Aspire version.
-
-All three complete solutions build, and full startup checks passed for .NET 8, .NET 9 and .NET 10. Validation details are recorded in the individual folder README files. Install the matching .NET and ASP.NET Core runtimes, plus the SDK required by the selected host. Visual Studio itself must support that SDK; see [Microsoft's support matrix](https://learn.microsoft.com/en-us/dotnet/core/porting/versioning-sdk-msbuild-vs). Aspire 9.5.2 framework metadata is available on [NuGet](https://www.nuget.org/packages/Aspire.Hosting.AppHost/9.5.2).
-
-See each folder's README for automatic port selection and a two-server test, node writing, modes, configuration, standalone startup, certificates and troubleshooting.
-
-The adapter is maintained separately in [NBFinn/OpcUa-Adapter](https://github.com/NBFinn/OpcUa-Adapter) and is not used by these server projects.
+The folder READMEs explain configuration, automatic ports, certificates and usage. Builds and live server/adapter tests passed on .NET 8, 9 and 10, including reads, typed writes, rejected invalid writes, subscriptions, reconnects and concurrent port selection. Visual Studio F5 interaction was not tested.

@@ -1,28 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <StartupObject>OpcUA_Server.Program</StartupObject>
     <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings><LangVersion>12.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>12.0</LangVersion>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.5.378.176" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="TestServer\OpcUaServers.json" TargetPath="OpcUaServers.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="TestServer\Devices\**\*.json" TargetPath="Devices\%(Filename)%(Extension)">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="TestServer\Simulations\Scenarios\*.yaml" TargetPath="Scenarios\%(Filename)%(Extension)">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Program.cs;TestServer\**\*.cs" />
-    <None Remove="Dashboard\**;AppHost\**" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Server" Version="1.5.378.176" />
+    <Compile Include="Program.cs;Server/**/*.cs" />
+    <None Update="server.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
